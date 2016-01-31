@@ -5,7 +5,7 @@
 
 typedef enum
 {
-
+    //Add here your custom events
 } Event_type_t;
 
 typedef struct _event
