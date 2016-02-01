@@ -3,12 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
-#define MAX_EV 20
-#define MAX_TM 20
-#define NUM_OF_STATE_MACHINES 3
-#define TM_RESOLUTION 100 /* milliseconds */
-
+#include "defines.h"
 /**********************************************************************************/
 /**********************************************************************************/
 typedef struct _event
@@ -31,11 +26,12 @@ typedef struct _state_machine
 {
 	bool execute;
 	uint8_t id;
-	uint8_t (*state_machine_function)(Event_t * ev);
+	int8_t (*state_machine_function)(Event_t * ev);
 }State_Machine_t;
 
 void State_Machine_init(State_Machine_t * sm);
-void State_Machine_set_function(uint8_t (*state_machine_function)(Event_t * ev));
+void State_Machine_set_function(State_Machine_t * sm, 
+	int8_t (*state_machine_function)(Event_t * ev));
 void State_Machine_execute(State_Machine_t * sm);
 
 /**********************************************************************************/
@@ -60,7 +56,7 @@ typedef struct _tm_handler
 void TmHandler_init(Time_Handler * tmh);
 void TmHandler_set_event_handler(Time_Handler * tmh, Ev_Handler * evh);
 void TmHandler_decremente_timer(Time_Handler * tmh);
-void TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm);
+int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm);
 
 /**********************************************************************************/
 /**********************************************************************************/
@@ -73,8 +69,8 @@ typedef struct _gexfra
 }Gexfra;
 
 void Gexfra_init(Gexfra * gxf);
-int8_t Gexfra_add_state_machine(State_Machine_t * sm);
-void Gexfra_del_state_machine(State_Machine_t * sm);
+int8_t Gexfra_add_state_machine(Gexfra * gxf, State_Machine_t * sm);
+void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm);
 void Gexfra_run(Gexfra * gxf);
 void Gexfra_stop(Gexfra * gxf);
 

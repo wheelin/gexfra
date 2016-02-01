@@ -2,6 +2,8 @@
 
 #include "gexfra.h"
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 /**********************************************************************************/
 /**********************************************************************************/
@@ -11,7 +13,8 @@ void State_Machine_init(State_Machine_t * sm)
 	sm->state_machine_function = NULL;
 }
 
-void State_Machine_set_function(uint8_t (*state_machine_function)(Event_t * ev))
+void State_Machine_set_function(State_Machine_t * sm, 
+	int8_t (*state_machine_function)(Event_t * ev))
 {
 	sm->state_machine_function = state_machine_function;
 }
@@ -39,9 +42,9 @@ Event_t EvHandler_get_next_event(Ev_Handler * evh)
 	Event_t ret_ev = evh->ev_list[0];
 	for(i = 1; i < MAX_EV; i++)
 	{
-		ev->ev_list[i - 1] = ev->ev_list[i];
+		evh->ev_list[i - 1] = evh->ev_list[i];
 	}
-	ev->ev_list[MAX_EV - 1] = {0, false};
+	evh->ev_list[MAX_EV - 1] = (Event_t){0, false};
 	return ret_ev;
 }
 
@@ -124,7 +127,7 @@ int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm)
 void Gexfra_init(Gexfra * gxf)
 {
 	uint32_t i;
-	for(i = 0; i < NUM_OF_STATE_MACHINES)
+	for(i = 0; i < NUM_OF_STATE_MACHINES; i++)
 	{
 		gxf->machines[i] = NULL;
 	}
@@ -166,13 +169,18 @@ void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm)
 void Gexfra_run(Gexfra * gxf)
 {
 	uint32_t i;
+	Event_t ev;
 	while(gxf->must_run == true)
 	{
+		ev = EvHandler_get_next_event(&(gxf->evh));
 		for(i = 0; i < NUM_OF_STATE_MACHINES; i++)
 		{
-			if(gxf->machines[i]->state_machine_function(&EvHandler_get_next_event(gxf->evh)) < 0)
+			if(ev.ev_id != 0)
 			{
-				return;
+				if(gxf->machines[i]->state_machine_function(&ev) < 0)
+				{
+					return;
+				}
 			}
 		}
 	}
