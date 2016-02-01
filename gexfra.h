@@ -24,15 +24,15 @@ typedef struct _timeout
 /**********************************************************************************/
 typedef struct _state_machine
 {
-	bool execute;
+	State_t current, previous;
 	uint8_t id;
-	int8_t (*state_machine_function)(Event_t * ev);
+	int8_t (*state_machine_function)(struct _state_machine * sm, Event_t * ev);
 }State_Machine_t;
 
-void State_Machine_init(State_Machine_t * sm);
-void State_Machine_set_function(State_Machine_t * sm, 
-	int8_t (*state_machine_function)(Event_t * ev));
-void State_Machine_execute(State_Machine_t * sm);
+void State_Machine_init(State_Machine_t * sm,
+	uint8_t id, 
+	State_t initial_state,
+	int8_t (*state_machine_function)(State_Machine_t * sm, Event_t * ev));
 
 /**********************************************************************************/
 /**********************************************************************************/
@@ -64,6 +64,7 @@ typedef struct _gexfra
 {
 	bool must_run;
 	State_Machine_t * machines[NUM_OF_STATE_MACHINES];
+	uint8_t num_of_state_machines_registered;
 	Ev_Handler evh;
 	Time_Handler tmh;
 }Gexfra;

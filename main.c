@@ -9,41 +9,73 @@
 
 static Gexfra gxf;
 
-int8_t sm_func(Event_t * ev)
+int8_t sm_func(State_Machine_t * sm, Event_t * ev)
 {
 	Event_t temp_ev;
 	printf("Event id is : %d\n", ev->ev_id);
-	switch(ev->ev_id)
+	switch(sm->previous)
 	{
-		case TM_500:
-			printf("%s\n", "tm event\n");
+		case SM1_state_Init:
+			sm->current = SM1_other_state;
 			break;
-		case INTERRUPT:
-			printf("%s\n", "interrupt event\n");
+		case SM1_other_state:
+			if(ev->ev_id == INTERRUPT)
+			{
+				sm->current = SM1_after_interrupt;
+			}
+			else if(ev->ev_id == EV_OTHER)
+			{
+				sm->current = SM1_other_state;
+			}
+			break;
+		case SM1_after_interrupt:
+			if(ev->ev_id == EV_OTHER)
+			{
+				sm->current = SM1_other_state;
+			}
+			else if(ev->ev_id == INTERRUPT)
+			{
+				sm->current = SM1_after_interrupt;
+			}
+			break;
+		default:
+			sm->current = EV_OTHER;
+	}
+	switch(sm->current)
+	{
+		case SM1_state_Init:
+			printf("In initial state\n");
+			break;
+		case SM1_other_state:
+			printf("In other state\n");
 			temp_ev.ev_id = INTERRUPT;
+			temp_ev.used = true;
+			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			break;
+		case SM1_after_interrupt:
+			printf("In 'after interrupt' state\n");
+			temp_ev.ev_id = EV_OTHER;
 			temp_ev.used = true;
 			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
 			break;
 		default:
-			printf("%s\n", "not handled event\n");
-			temp_ev.ev_id = INTERRUPT;
+			printf("Problem with the states\n");
+			temp_ev.ev_id = EV_OTHER;
 			temp_ev.used = true;
 			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			break;
 	}
+	sm->previous = sm->current;
 	return 0;
 }
 
 void main(void)
 {
-	Event_t ev = (Event_t) {INTERRUPT, true};
 	State_Machine_t sm;
-	State_Machine_init(&sm);
-	State_Machine_set_function(&sm, sm_func);
-	State_Machine_execute(&sm);
+	State_Machine_init(&sm, 1, SM1_state_Init, sm_func);
+
 	Gexfra_init(&gxf);
 	Gexfra_add_state_machine(&gxf, &sm);
-	printf("%s\n", "Executing functions\n");
-	EvHandler_add_event_to_list(&(gxf.evh), ev);
-	gxf.must_run = true;
+
 	Gexfra_run(&gxf);
 }

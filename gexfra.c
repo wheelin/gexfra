@@ -4,24 +4,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 /**********************************************************************************/
 /**********************************************************************************/
-void State_Machine_init(State_Machine_t * sm)
+void State_Machine_init(State_Machine_t * sm,
+	uint8_t id, 
+	State_t initial_state,
+	int8_t (*state_machine_function)(State_Machine_t * sm, Event_t * ev))
 {
-	sm->execute = false;
-	sm->state_machine_function = NULL;
-}
-
-void State_Machine_set_function(State_Machine_t * sm, 
-	int8_t (*state_machine_function)(Event_t * ev))
-{
+	sm->previous = initial_state;
+	sm->current = initial_state;
+	sm->id = id;
 	sm->state_machine_function = state_machine_function;
-}
-
-void State_Machine_execute(State_Machine_t * sm)
-{
-	sm->execute = true;
 }
 
 /**********************************************************************************/
@@ -127,10 +122,12 @@ int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm)
 void Gexfra_init(Gexfra * gxf)
 {
 	uint32_t i;
+	gxf->must_run = true;
 	for(i = 0; i < NUM_OF_STATE_MACHINES; i++)
 	{
 		gxf->machines[i] = NULL;
 	}
+	gxf->num_of_state_machines_registered = 0;
 	EvHandler_init(&gxf->evh);
 	TmHandler_init(&gxf->tmh);
 }
@@ -150,6 +147,7 @@ int8_t Gexfra_add_state_machine(Gexfra * gxf, State_Machine_t * sm)
 	{
 		return -1;
 	}
+	gxf->num_of_state_machines_registered++;
 	gxf->machines[i] = sm;
 	return 0;
 }
@@ -162,6 +160,7 @@ void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm)
 		if(sm->id == gxf->machines[i]->id)
 		{
 			gxf->machines[i] = NULL;
+			gxf->num_of_state_machines_registered--;
 		}
 	}
 }
@@ -173,15 +172,13 @@ void Gexfra_run(Gexfra * gxf)
 	while(gxf->must_run == true)
 	{
 		ev = EvHandler_get_next_event(&(gxf->evh));
-		for(i = 0; i < NUM_OF_STATE_MACHINES; i++)
+		for(i = 0; i < gxf->num_of_state_machines_registered; i++)
 		{
-			if(ev.ev_id != 0)
+			if(gxf->machines[i]->state_machine_function(gxf->machines[i], &ev) < 0)
 			{
-				if(gxf->machines[i]->state_machine_function(&ev) < 0)
-				{
-					return;
-				}
+				return;
 			}
 		}
+		sleep(1);
 	}
 }
