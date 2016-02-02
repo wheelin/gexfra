@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -23,45 +21,29 @@ int8_t sm_func(State_Machine_t * sm, Event_t * ev)
 			{
 				sm->current = SM1_after_interrupt;
 			}
-			else if(ev->ev_id == EV_OTHER)
-			{
-				sm->current = SM1_other_state;
-			}
 			break;
 		case SM1_after_interrupt:
 			if(ev->ev_id == EV_OTHER)
 			{
 				sm->current = SM1_other_state;
 			}
-			else if(ev->ev_id == INTERRUPT)
-			{
-				sm->current = SM1_after_interrupt;
-			}
 			break;
-		default:
-			sm->current = EV_OTHER;
 	}
 	switch(sm->current)
 	{
-		case SM1_state_Init:
-			printf("In initial state\n");
-			break;
 		case SM1_other_state:
 			printf("In other state\n");
-			temp_ev.ev_id = INTERRUPT;
-			temp_ev.used = true;
+			temp_ev = create_Event(INTERRUPT);
 			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
 			break;
 		case SM1_after_interrupt:
 			printf("In 'after interrupt' state\n");
-			temp_ev.ev_id = EV_OTHER;
-			temp_ev.used = true;
+			temp_ev = create_Event(EV_OTHER);
 			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
 			break;
 		default:
 			printf("Problem with the states\n");
-			temp_ev.ev_id = EV_OTHER;
-			temp_ev.used = true;
+			temp_ev = create_Event(EV_OTHER);
 			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
 			break;
 	}

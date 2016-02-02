@@ -6,8 +6,26 @@
 #include <stdlib.h>
 #include <time.h>
 
+Event_t create_Event(uint8_t id)
+{
+	Event_t ev;
+	ev.ev_id = id;
+	return ev;
+}
+
+Timeout_t create_Timeout(Event_t ev, uint32_t duration)
+{
+	Timeout_t tm;
+	tm.id = ev.ev_id;
+	tm.ev = ev;
+	tm.msec = duration;
+
+	return tm;
+}
+
 /**********************************************************************************/
 /**********************************************************************************/
+// PUBLIC FUNCTION
 // This function initializes the State machine object with :
 // 		- uint8_t id : sm identifier, useful to 
 //			unregister state machine when useless
@@ -232,6 +250,6 @@ void Gexfra_run(Gexfra * gxf)
 #ifdef __linux
         nanosleep(&ts, NULL);
 #endif
-        
+
 	}
 }

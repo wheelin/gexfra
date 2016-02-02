@@ -15,6 +15,7 @@ typedef struct _event
 	uint8_t ev_id;
 	bool used;
 }Event_t;
+Event_t create_Event(uint8_t id);
 
 typedef struct _timeout
 {
@@ -23,7 +24,7 @@ typedef struct _timeout
 	Event_t ev;
 	bool used;
 }Timeout_t;
-
+Timeout_t create_Timeout(Event_t ev, uint32_t duration);
 /**********************************************************************************/
 /**********************************************************************************/
 typedef struct _state_machine

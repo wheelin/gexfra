@@ -40,18 +40,12 @@ static int8_t sm_func(State_Machine_t * sm, Event_t * ev)
             break;
         case SM1_other_state:
             printf("In other state\n");
-            temp_ev.ev_id = TM_500;
-            tmp_tm.ev = temp_ev;
-            tmp_tm.id = TM_500;
-            tmp_tm.msec = 500;
+            tmp_tm = create_Timeout(create_Event(TM_500), 500);
             TmHandler_add_timeout_to_list(&(gxf.tmh), tmp_tm);
             break;
         case SM1_after_interrupt:
             printf("In 'after interrupt' state\n");
-            temp_ev.ev_id = TM_5000;
-            tmp_tm.ev = temp_ev;
-            tmp_tm.id = TM_5000;
-            tmp_tm.msec = 5000;
+            tmp_tm = create_Timeout(create_Event(TM_5000), 5000);
             TmHandler_add_timeout_to_list(&(gxf.tmh), tmp_tm);
             break;
     }
