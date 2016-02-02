@@ -10,7 +10,7 @@ Gexfra is a small library to handle the state machines developement. State machi
 
 ## How to use?
 *	Set Gexfra settings in the `defines.h` file
-```
+```c
 /* Gexfra CONF */
 #define MAX_EV 20
 #define MAX_TM 20
@@ -18,7 +18,7 @@ Gexfra is a small library to handle the state machines developement. State machi
 #define TM_RESOLUTION 100 /* milliseconds */
 ```
 *	Define your events and states in the `defines.h` file.
-```
+```c
 /* EVENTS */
 // EV_INIT is mandatory to start the process
 #define EV_INIT 0
@@ -86,7 +86,7 @@ int8_t sm_func(State_Machine_t * sm, Event_t * ev)
 }
 ```
    And second with timers
-```
+```c
 static int8_t sm_func(State_Machine_t * sm, Event_t * ev)
 {
     Event_t temp_ev;
@@ -134,7 +134,7 @@ Prototype of this function must look like `int8_t <function_name> (State_Machine
 
 *	The `Gexfra` object must be a global object. 
 *	Here is the minimal __main__ function to create and exectute a single state machine:
-```
+```c
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
