@@ -11,7 +11,9 @@
 #define TM_RESOLUTION 100 /* milliseconds */
 
 /* EVENTS */
-#define TM_1000 1
+#define EV_INIT 0
+
+#define TM_5000 1
 #define TM_500  2
 
 #define INTERRUPT 3

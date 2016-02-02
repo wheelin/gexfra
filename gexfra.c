@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <time.h>
 
 /**********************************************************************************/
 /**********************************************************************************/
@@ -57,6 +57,7 @@ int8_t EvHandler_add_event_to_list(Ev_Handler * evh, Event_t ev)
 	{
 		return -1;
 	}
+    ev.used = true;
 	evh->ev_list[i] = ev;
 	return 0;
 }
@@ -113,6 +114,7 @@ int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm)
 	{
 		return -1;
 	}
+    tm.used = true;
 	tmh->tm_list[i] = tm;
 	return 0;
 }
@@ -169,16 +171,22 @@ void Gexfra_run(Gexfra * gxf)
 {
 	uint32_t i;
 	Event_t ev;
+    struct timespec ts;
+    ts.tv_sec = 50/1000;
+    ts.tv_nsec = (50 % 1000) * 1000000;
+    TmHandler_set_event_handler(&(gxf->tmh), &(gxf->evh));
+    EvHandler_add_event_to_list(&(gxf->evh), (Event_t){EV_INIT, true});
 	while(gxf->must_run == true)
 	{
 		ev = EvHandler_get_next_event(&(gxf->evh));
 		for(i = 0; i < gxf->num_of_state_machines_registered; i++)
 		{
+            if(ev.used == false) break;
 			if(gxf->machines[i]->state_machine_function(gxf->machines[i], &ev) < 0)
 			{
 				return;
 			}
 		}
-		sleep(1);
+        nanosleep(&ts, NULL);
 	}
 }

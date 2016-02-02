@@ -1,6 +1,10 @@
 #ifndef GEXFRA_H
 #define GEXFRA_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "defines.h"
@@ -75,5 +79,8 @@ void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm);
 void Gexfra_run(Gexfra * gxf);
 void Gexfra_stop(Gexfra * gxf);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GEXFRA_H */
