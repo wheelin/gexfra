@@ -8,6 +8,13 @@
 
 /**********************************************************************************/
 /**********************************************************************************/
+// This function initializes the State machine object with :
+// 		- uint8_t id : sm identifier, useful to 
+//			unregister state machine when useless
+//		- State_t initial_state : state used to initialize the previous and 
+//			current state
+// 		- int8_t (*state_machine_function)(State_Machine_t * sm, Event_t * ev)
+// 			function pointer pointing on the function describing the state machine
 void State_Machine_init(State_Machine_t * sm,
 	uint8_t id, 
 	State_t initial_state,
@@ -21,6 +28,8 @@ void State_Machine_init(State_Machine_t * sm,
 
 /**********************************************************************************/
 /**********************************************************************************/
+// This function initializes the event pool by setting all event ids to zero
+// And the flag that indicates if an event is used at the moment to false.
 void EvHandler_init(Ev_Handler * evh)
 {
 	uint32_t i;
@@ -31,6 +40,11 @@ void EvHandler_init(Ev_Handler * evh)
 	}
 }
 
+// This function returns the first event from the list, no matter if this event
+// is in use or not.
+// It then rearranges the array by pushing the next event to the first place.
+// Last event is automatically initialized with the common 
+// values for an unused event.
 Event_t EvHandler_get_next_event(Ev_Handler * evh)
 {
 	uint32_t i;
@@ -43,6 +57,9 @@ Event_t EvHandler_get_next_event(Ev_Handler * evh)
 	return ret_ev;
 }
 
+// This function adds a new event to the event list. This array is managed like
+// a FIFO. 
+// It returns -1 if there is no more empty place in the list, else 0.
 int8_t EvHandler_add_event_to_list(Ev_Handler * evh, Event_t ev)
 {
 	uint32_t i;
@@ -64,6 +81,7 @@ int8_t EvHandler_add_event_to_list(Ev_Handler * evh, Event_t ev)
 
 /**********************************************************************************/
 /**********************************************************************************/
+// This function initializes the timeout pool with the unused timeout values
 void TmHandler_init(Time_Handler * tmh)
 {
 	uint32_t i;
@@ -75,11 +93,18 @@ void TmHandler_init(Time_Handler * tmh)
 	}
 }
 
+// The TmHandler needs to have a pointer on the EvHandler in order to create a
+// new event when a timeout is issued.
 void TmHandler_set_event_handler(Time_Handler * tmh, Ev_Handler * evh)
 {
 	tmh->evh = evh;
 }
 
+// This function is called by a timer interrupt handler for example. This will
+// decrement all the used timeouts inside the array until one has its value equal
+// or less than zero. Then, a new event is created for each of this timeouts.
+// The used flag is then set to false to indicate that this tiemout has already
+// been issued and is ready to accept a new timeout
 void TmHandler_decremente_timer(Time_Handler * tmh)
 {
 	uint32_t i;
@@ -89,9 +114,6 @@ void TmHandler_decremente_timer(Time_Handler * tmh)
 		{
 			tmh->tm_list[i].msec -= TM_RESOLUTION;
 		}
-	}
-	for(i = 0; i < MAX_TM; i++)
-	{
 		if(tmh->tm_list[i].used == true && tmh->tm_list[i].msec <= 0)
 		{
 			EvHandler_add_event_to_list(tmh->evh, tmh->tm_list[i].ev);
@@ -100,6 +122,10 @@ void TmHandler_decremente_timer(Time_Handler * tmh)
 	}
 }
 
+// This function adds a new timeout to the list. The first hole in the list
+// is filled with this timeout.
+// If we have reached the end of the array without finding a hole, we return -1.
+// Else, if the timeout has correctly been added, we return 0.
 int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm)
 {
 	uint32_t i;
@@ -121,6 +147,9 @@ int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm)
 
 /**********************************************************************************/
 /**********************************************************************************/
+// PUBLIC FUNCTION
+// This function initializes the state machine array 
+// and the event and timeout pools
 void Gexfra_init(Gexfra * gxf)
 {
 	uint32_t i;
@@ -134,6 +163,9 @@ void Gexfra_init(Gexfra * gxf)
 	TmHandler_init(&gxf->tmh);
 }
 
+// PUBLIC FUNCTION
+// This function allows a state machine to be registered in order to be executed
+// when Gexfra is running
 int8_t Gexfra_add_state_machine(Gexfra * gxf, State_Machine_t * sm)
 {
 	uint32_t i;
@@ -154,6 +186,8 @@ int8_t Gexfra_add_state_machine(Gexfra * gxf, State_Machine_t * sm)
 	return 0;
 }
 
+// PUBLIC FUNCTION
+// This function unregisters a state machine that became useless.
 void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm)
 {
 	uint32_t i;
@@ -167,13 +201,20 @@ void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm)
 	}
 }
 
+// PUBLIC FUNCTION
+// This function executes all the registered functions 
+// and distributes events to all of them 
 void Gexfra_run(Gexfra * gxf)
 {
 	uint32_t i;
 	Event_t ev;
+
+#ifdef __linux
     struct timespec ts;
     ts.tv_sec = 50/1000;
     ts.tv_nsec = (50 % 1000) * 1000000;
+#endif
+
     TmHandler_set_event_handler(&(gxf->tmh), &(gxf->evh));
     EvHandler_add_event_to_list(&(gxf->evh), (Event_t){EV_INIT, true});
 	while(gxf->must_run == true)
@@ -187,6 +228,10 @@ void Gexfra_run(Gexfra * gxf)
 				return;
 			}
 		}
+
+#ifdef __linux
         nanosleep(&ts, NULL);
+#endif
+        
 	}
 }
