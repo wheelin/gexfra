@@ -77,6 +77,8 @@ typedef struct _gexfra
 void Gexfra_init(Gexfra * gxf);
 int8_t Gexfra_add_state_machine(Gexfra * gxf, State_Machine_t * sm);
 void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm);
+int8_t Gexfra_add_event(Gexfra * gxf, Event_t ev);
+int8_t Gexfra_add_timeout(Gexfra * gxf, Timeout_t tm);
 void Gexfra_run(Gexfra * gxf);
 void Gexfra_stop(Gexfra * gxf);
 

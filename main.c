@@ -34,17 +34,17 @@ int8_t sm_func(State_Machine_t * sm, Event_t * ev)
 		case SM1_other_state:
 			printf("In other state\n");
 			temp_ev = create_Event(INTERRUPT);
-			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			Gexfra_add_event(&gxf, temp_ev);
 			break;
 		case SM1_after_interrupt:
 			printf("In 'after interrupt' state\n");
 			temp_ev = create_Event(EV_OTHER);
-			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			Gexfra_add_event(&gxf, temp_ev);
 			break;
 		default:
 			printf("Problem with the states\n");
 			temp_ev = create_Event(EV_OTHER);
-			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			Gexfra_add_event(&gxf, temp_ev);
 			break;
 	}
 	sm->previous = sm->current;

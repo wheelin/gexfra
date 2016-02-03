@@ -68,17 +68,17 @@ int8_t sm_func(State_Machine_t * sm, Event_t * ev)
 		case SM1_other_state:
 			printf("In other state\n");
 			temp_ev = create_Event(INTERRUPT);
-			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			Gexfra_add_event(&gxf, temp_ev);
 			break;
 		case SM1_after_interrupt:
 			printf("In 'after interrupt' state\n");
 			temp_ev = create_Event(EV_OTHER);
-			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			Gexfra_add_event(&gxf, temp_ev);
 			break;
 		default:
 			printf("Problem with the states\n");
 			temp_ev = create_Event(EV_OTHER);
-			EvHandler_add_event_to_list(&(gxf.evh), temp_ev);
+			Gexfra_add_event(&gxf, temp_ev);
 			break;
 	}
 	sm->previous = sm->current;
@@ -118,12 +118,12 @@ static int8_t sm_func(State_Machine_t * sm, Event_t * ev)
         case SM1_other_state:
             printf("In other state\n");
             tmp_tm = create_Timeout(create_Event(TM_500), 500);
-            TmHandler_add_timeout_to_list(&(gxf.tmh), tmp_tm);
+            Gexfra_add_timeout(&gxf, tmp_tm);
             break;
         case SM1_after_interrupt:
             printf("In 'after interrupt' state\n");
             tmp_tm = create_Timeout(create_Event(TM_5000), 5000);
-            TmHandler_add_timeout_to_list(&(gxf.tmh), tmp_tm);
+            Gexfra_add_timeout(&gxf, tmp_tm);
             break;
     }
     sm->previous = sm->current;
@@ -156,3 +156,11 @@ void main(void)
 }
 ```
 *	The final point is to call the `void TmHandler_decremente_timer(Time_Handler * tmh)` function from a timer interrupt. A small Qt project can be found in this repository for testing timeout capabilities. This can explain why `Gexfra` object must be global : allow to be accessed from the interrupt routines
+
+##State of the project
+For the moment, two very simple state machines have been implemented, one with two states and each one producing an event to the other state and one simulating a monostable vibrator with different timeouts. 
+The next stage will be to create a state machine working on a stm32f429i-disco, with timeouts and buttons events, just to toggle some leds first.
+
+Some optimisations for the memory pools must be done, too. For an efficient work, the event and timeout handling time overhead must be as little as possible. This is not the case at this time. 
+
+

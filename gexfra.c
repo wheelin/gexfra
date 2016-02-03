@@ -220,6 +220,20 @@ void Gexfra_del_state_machine(Gexfra * gxf, State_Machine_t * sm)
 }
 
 // PUBLIC FUNCTION
+// Wrapper around the EvHandler function 
+int8_t Gexfra_add_event(Gexfra * gxf, Event_t ev)
+{
+	return EvHandler_add_event_to_list(&(gxf->evh), ev);
+}
+
+// PUBLIC FUNCTION
+// Wrapper around the TmHandler function 
+int8_t Gexfra_add_timeout(Gexfra * gxf, Timeout_t tm)
+{
+	return TmHandler_add_timeout_to_list(&(gxf->tmh), tm);
+}
+
+// PUBLIC FUNCTION
 // This function executes all the registered functions 
 // and distributes events to all of them 
 void Gexfra_run(Gexfra * gxf)

@@ -41,12 +41,12 @@ static int8_t sm_func(State_Machine_t * sm, Event_t * ev)
         case SM1_other_state:
             printf("In other state\n");
             tmp_tm = create_Timeout(create_Event(TM_500), 500);
-            TmHandler_add_timeout_to_list(&(gxf.tmh), tmp_tm);
+            Gexfra_add_timeout(&gxf, tmp_tm);
             break;
         case SM1_after_interrupt:
             printf("In 'after interrupt' state\n");
             tmp_tm = create_Timeout(create_Event(TM_5000), 5000);
-            TmHandler_add_timeout_to_list(&(gxf.tmh), tmp_tm);
+            Gexfra_add_timeout(&gxf, tmp_tm);
             break;
     }
     sm->previous = sm->current;
