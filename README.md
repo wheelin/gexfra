@@ -155,15 +155,10 @@ void main(void)
 	Gexfra_run(&gxf);
 }
 ```
-*	The final point is to call the `void TmHandler_decremente_timer(Time_Handler * tmh)` function from a timer interrupt. A small Qt project can be found in this repository for testing timeout capabilities. This can explain why `Gexfra` object must be global : allow to be accessed from the interrupt routines
-<<<<<<< HEAD
+*	The final point is to call the `void TmHandler_decremente_timer(Time_Handler * tmh)` function from a timer interrupt. A small Qt project can be found in this repository for testing timeout capabilities. This can explain why `Gexfra` object must be global : allow to be accessed from the interrupt routines.
 
 ##State of the project
 For the moment, two very simple state machines have been implemented, one with two states and each one producing an event to the other state and one simulating a monostable vibrator with different timeouts. 
 The next stage will be to create a state machine working on a stm32f429i-disco, with timeouts and buttons events, just to toggle some leds first.
 
 Some optimisations for the memory pools must be done, too. For an efficient work, the event and timeout handling time overhead must be as little as possible. This is not the case at this time. 
-
-
-=======
->>>>>>> 100054e63bbebbeda470f010d9bb784241f80bf3
