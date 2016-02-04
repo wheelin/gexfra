@@ -56,6 +56,7 @@ void EvHandler_init(Ev_Handler * evh)
 		evh->ev_list[i].ev_id = 0;
 		evh->ev_list[i].used = false;
 	}
+	evh->num_of_evs = 0;
 }
 
 // This function returns the first event from the list, no matter if this event
@@ -66,35 +67,41 @@ void EvHandler_init(Ev_Handler * evh)
 Event_t EvHandler_get_next_event(Ev_Handler * evh)
 {
 	uint32_t i;
-	Event_t ret_ev = evh->ev_list[0];
-	for(i = 1; i < MAX_EV; i++)
+	Event_t ret_ev;
+	if(evh->num_of_evs == 0) 
 	{
-		evh->ev_list[i - 1] = evh->ev_list[i];
+		return (Event_t){0, false};
 	}
-	evh->ev_list[MAX_EV - 1] = (Event_t){0, false};
-	return ret_ev;
+	else
+	{
+		ret_ev = evh->ev_list[0];
+		for(i = 1; i < evh->num_of_evs; i++)
+		{
+			evh->ev_list[i - 1] = evh->ev_list[i];
+		}
+		evh->ev_list[evh->num_of_evs - 1] = (Event_t) {0, false};
+		(evh->num_of_evs)--;
+		return ret_ev;
+	}
 }
 
 // This function adds a new event to the event list. This array is managed like
 // a FIFO. 
-// It returns -1 if there is no more empty place in the list, else 0.
+// It returns -1 if there is no more empty place in the list, else number of events
+// in the list.
 int8_t EvHandler_add_event_to_list(Ev_Handler * evh, Event_t ev)
 {
-	uint32_t i;
-	for(i = 0; i < MAX_EV; i++)
-	{
-		if(evh->ev_list[i].used == false)
-		{
-			break;
-		}
-	}
-	if(i == MAX_EV - 1 && evh->ev_list[MAX_EV - 1].used == true)
+	if(evh->num_of_evs == MAX_EV)
 	{
 		return -1;
 	}
-    ev.used = true;
-	evh->ev_list[i] = ev;
-	return 0;
+	else
+	{
+		ev.used = true;
+		evh->ev_list[evh->num_of_evs] = ev;
+		(evh->num_of_evs)++;
+		return evh->num_of_evs;
+	}
 }
 
 /**********************************************************************************/
@@ -109,6 +116,7 @@ void TmHandler_init(Time_Handler * tmh)
 		tmh->tm_list[i].msec = 0;
 		tmh->tm_list[i].used = false;
 	}
+	tmh->num_of_tms = 0;
 }
 
 // The TmHandler needs to have a pointer on the EvHandler in order to create a
@@ -136,6 +144,7 @@ void TmHandler_decremente_timer(Time_Handler * tmh)
 		{
 			EvHandler_add_event_to_list(tmh->evh, tmh->tm_list[i].ev);
 			tmh->tm_list[i].used = false;
+			(tmh->num_of_tms)--;
 		}
 	}
 }
@@ -143,7 +152,8 @@ void TmHandler_decremente_timer(Time_Handler * tmh)
 // This function adds a new timeout to the list. The first hole in the list
 // is filled with this timeout.
 // If we have reached the end of the array without finding a hole, we return -1.
-// Else, if the timeout has correctly been added, we return 0.
+// Else, if the timeout has correctly been added, we return the number of 
+// timeouts in the list.
 int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm)
 {
 	uint32_t i;
@@ -160,7 +170,8 @@ int8_t TmHandler_add_timeout_to_list(Time_Handler * tmh, Timeout_t tm)
 	}
     tm.used = true;
 	tmh->tm_list[i] = tm;
-	return 0;
+	(tmh->num_of_tms)++;
+	return tmh->num_of_tms;
 }
 
 /**********************************************************************************/

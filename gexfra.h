@@ -44,6 +44,7 @@ void State_Machine_init(State_Machine_t * sm,
 typedef struct _ev_handler
 {
 	Event_t ev_list[MAX_EV];
+	uint32_t num_of_evs;
 }Ev_Handler;
 
 void EvHandler_init(Ev_Handler * evh);
@@ -56,6 +57,7 @@ typedef struct _tm_handler
 {
 	Ev_Handler * evh;
 	Timeout_t tm_list[MAX_TM];
+	uint32_t num_of_tms;
 }Time_Handler;
 
 void TmHandler_init(Time_Handler * tmh);
