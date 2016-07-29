@@ -1,7 +1,7 @@
 #Gexfra
 Gexfra is a small state machine framework intended to work on embedded systems where RTOS are just too much. It doesn't need dynamic memory management. 
 The idea was taken from bachelor courses where our first real project was to design a Snake game on a PIC. A small state machine framework was given to us. Sadly, I've lost this piece of code, so I've taken the decision to rewrite something similar.
-##Wath is it?
+##What is it?
 Gexfra is a small library to handle the state machines developement. State machines are created by registering a function with a specific prototype and implementation format into a `State_Machine_t`object. This object also contains two objects describing the previous and current states.
 
 `State_Machine_t` are then registered into a `Gexfra` object whose role is to execute functions registered into state machines and distribute events to them.
